@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Internet Cafe Service Charges</title>
+<style>
+:root{--ink:#172033;--muted:#64748b;--line:#e2e8f0;--brand:#155eef;--bg:#f5f7fb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--ink)}
+header{background:#10233f;color:white;padding:28px 16px;text-align:center}
+header h1{margin:0 0 8px;font-size:clamp(23px,5vw,34px)}header p{margin:0;color:#dbeafe}
+main{max-width:950px;margin:22px auto;padding:0 14px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+input,button{font:inherit;border-radius:9px;padding:12px;border:1px solid var(--line)}
+#search{flex:1;min-width:190px;background:white}
+button{cursor:pointer;background:var(--brand);color:white;border:0;font-weight:600}
+button.secondary{background:#e8eef8;color:#172033;border:1px solid #d7e0ef}
+.note{font-size:13px;color:var(--muted);margin:8px 2px 14px}
+.panel{background:white;border:1px solid var(--line);border-radius:13px;overflow:hidden;box-shadow:0 4px 18px #0f172a0a}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:#edf2f8;font-size:15px}td:last-child,th:last-child{width:34%;font-weight:600}
+tr:last-child td{border-bottom:0}
+.actions{white-space:nowrap}.actions button{padding:7px 9px;font-size:12px;margin:2px}
+.price{white-space:pre-line}
+#admin{display:none;background:white;border:1px solid var(--line);border-radius:13px;padding:16px;margin:14px 0}
+#admin h2{margin:0 0 12px;font-size:19px}
+.formrow{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.formrow input{min-width:0}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:22px}
+@media(max-width:600px){th,td{padding:12px 10px;font-size:14px}td:last-child,th:last-child{width:38%}.formrow{grid-template-columns:1fr}.actions button{display:block;width:100%}}
+</style>
+</head>
+<body>
+<header><h1 id="shopTitle">Internet Cafe Service Charges</h1><p>Service list and charges</p></header>
+<main>
+<div class="toolbar">
+<input id="search" type="search" placeholder="Search for services..." aria-label="Search services">
+<button id="adminToggle" class="secondary" type="button">Admin / Edit prices</button>
+<button id="reset" class="secondary" type="button">Reset original list</button>
+</div>
+<p class="note">Prices are a starting copy of the reference list. Check and update them before displaying to customers.</p>
+<section id="admin">
+<h2>Add or update a service</h2>
+<div class="formrow">
+<input id="serviceName" placeholder="Service name">
+<input id="servicePrice" placeholder="Service charge">
+<button id="saveService" type="button">Add service</button>
+</div>
+<p class="note">Tap Edit beside a row to load it here. Changes are saved in this browser on this device.</p>
+</section>
+<div class="panel">
+<table><thead><tr><th>Service Name</th><th>Service Charge</th><th class="actions" id="actionHead" hidden>Actions</th></tr></thead>
+<tbody id="serviceRows"></tbody></table>
+</div>
+</main>
+<footer>Manage your own service list • Charges may be changed by the shop owner</footer>
+<script>
+const original = [{"name": "Photostat A4 single side (01)", "price": "3 - 5/-"}, {"name": "Photostat A4 double side (02)", "price": "7/-"}, {"name": "Photostat A4 single side colour (03)", "price": "20/-"}, {"name": "Photostat Legal single side (04)", "price": "6/-"}, {"name": "Photostat Legal double side (05)", "price": "8/-"}, {"name": "Photostat Legal single side colour (06)", "price": "20/-"}, {"name": "Photostat A3 single side (07)", "price": "10/-"}, {"name": "Photostat A3 double side (08)", "price": "15/-"}, {"name": "Photostat A3 single side colour (09)", "price": "40/-"}, {"name": "Printout A4 (10)", "price": "10/-"}, {"name": "Printout A4 Color (11)", "price": "30/-"}, {"name": "Printout A3 (12)", "price": "20/-"}, {"name": "Printout A3 color (13)", "price": "40/-"}, {"name": "Lamination ID Card (14)", "price": "40/-"}, {"name": "Lamination RC Size (15)", "price": "50/-"}, {"name": "Lamination A4 Size (16)", "price": "80/-"}, {"name": "Lamination Legal Size (17)", "price": "100/-"}, {"name": "Lamination A3 Size (18)", "price": "120/-"}, {"name": "ID Card PVC (19)", "price": "100/-"}, {"name": "DTP A4 per Page (20)", "price": "100/-"}, {"name": "DTP Legal per Page (21)", "price": "120/-"}, {"name": "DTP Agreement Typing (Min. Charge) (22)", "price": "250/-"}, {"name": "DTP Printing to Stamp Paper (Per Page) (23)", "price": "60/-"}, {"name": "Scanning Per Paper (24)", "price": "10/-"}, {"name": "Spiral Binding ( Minimum) (25)", "price": "50/-"}, {"name": "Fund Tranfer (26)", "price": "Mini. 20/- + (Extra 10/- per 1000/-)"}, {"name": "Aadhaar PVC (27)", "price": "100/-"}, {"name": "Aims Registration (28)", "price": "70 - 100/-"}, {"name": "Birth Registration (29)", "price": "100/-"}, {"name": "Caste Certificate (30)", "price": "60/-"}, {"name": "Community Certificate (31)", "price": "60/-"}, {"name": "Driving Licence Duplicate (32)", "price": "nil"}, {"name": "Employment Registration (33)", "price": "100/-"}, {"name": "Employment Renewal (34)", "price": "50/-"}, {"name": "Employment Special Renewal (35)", "price": "50/-"}, {"name": "E-shramCard(with PVC) (36)", "price": "100/-"}, {"name": "KSEB Newconnection (37)", "price": "120/-"}, {"name": "Land Tax (38)", "price": "20/- [Upto 200]; 30/- [Upto 500]; 40/- [Upto 1000]"}, {"name": "Marriage Registration (39)", "price": "150 - 200/-"}, {"name": "None-creamy Layer Certificate (40)", "price": "60/-"}, {"name": "One and Same Certificate (41)", "price": "60/-"}, {"name": "PSC Registration (42)", "price": "100/-"}, {"name": "SSC Registration (43)", "price": "100 - 150/-/-"}, {"name": "SSC Examination Apply (44)", "price": "50 - 100/-"}, {"name": "UPSC Registration (45)", "price": "100/-"}, {"name": "Ration PVC (46)", "price": "100/-"}, {"name": "Sabarimal Booking (47)", "price": "30/Person"}, {"name": "Special Permit for Vehicle (48)", "price": "30/Person"}, {"name": "Voters ID New (49)", "price": "100/-"}, {"name": "Building Tax (50)", "price": "20/- [upto 500]; 30/- [500 - 1000]; 30+10 per 1000/- [Above 1000/-]"}, {"name": "Pravasi Registration (51)", "price": "100/-"}, {"name": "Pravasi Kshemanidhi (52)", "price": "nil"}, {"name": "KSEB Bill Payment (53)", "price": "Mini.20/-"}, {"name": "Email service (54)", "price": "20/-"}, {"name": "Biodata (55)", "price": "Normal-50/-; Advanced - 100/-"}, {"name": "Camera Fine Payment (56)", "price": "0/-"}, {"name": "Egrants Scholorship (57)", "price": "100/-"}, {"name": "Pre-matric Scholorship (58)", "price": "100/-"}, {"name": "Post-matric Scholorship (59)", "price": "100/-"}, {"name": "PCC (Police Clearance Certificate) (60)", "price": "100 - 150/-"}, {"name": "Food Safety Licence Registration (FSSAI)(61)", "price": "100 - 150/-"}, {"name": "Employment Exchange Qualification Addition (62)", "price": "50/-"}, {"name": "Aims Land Verification (63)", "price": "Min.20/-"}, {"name": "PM Kisan Registration (64)", "price": "100/-"}, {"name": "Plus one Allotment (65)", "price": "80/-"}, {"name": "Pancard (66)", "price": "250/-"}, {"name": "Passport(67)", "price": "1800/-"}, {"name": "Income Certificate (68)", "price": "60/-"}, {"name": "Possession Certificate (69)", "price": "60/-"}, {"name": "Encumbrance (Kudikkadam) (70)", "price": "Fee + Min. 100/-"}, {"name": "Account Opening (71)", "price": "nil"}, {"name": "University Fee Payment (72)", "price": "Min.30/-"}, {"name": "Hallticket Download (73)", "price": "20/-"}, {"name": "NEET/JEE/KEAM/ICSR/IISER Application (74)", "price": "200/-"}, {"name": "Pension (75)", "price": "100/-"}, {"name": "Tailoring Welfare Kshemanidhi Payment (76)", "price": "Min.20/-"}, {"name": "Mice Permission for Vehicle (77)", "price": "100/-"}, {"name": "Mice Permission for Stage (78)", "price": "100/-"}, {"name": "Add name in Voters List (79)", "price": "80/-"}, {"name": "IGNOU Registration Charge(80)", "price": "200 - 300/-"}, {"name": "Domicile Certificate (81)", "price": "nil"}, {"name": "Fast Tag Recharge (82)", "price": "nil"}, {"name": "Bus Ticket Booking (83)", "price": "nil"}, {"name": "MG University Degree Certificate Apply (84)", "price": "nil"}, {"name": "Niti Ayog (85)", "price": "nil"}, {"name": "KTET/SET/JRF Application (86)", "price": "150/-"}, {"name": "PF Withdrawal (87)", "price": "nil"}, {"name": "Calicut University Registration (88)", "price": "150/-"}, {"name": "Calicut University Payments (89)", "price": "50 - 100/-"}, {"name": "Central University Registration (90)", "price": "150/-"}, {"name": "VidyaLakshmi/Janasamarthy Loan (91)", "price": "200/-"}, {"name": "PSC Document Uploading (92)", "price": "20/File"}, {"name": "PSC Exam Applicantion(93)", "price": "10 - 20/Application"}, {"name": "Army/Navy/Airforce Registration(94)", "price": "150 - 200/-"}, {"name": "Driving Licence Renewal(95)", "price": "200/-"}, {"name": "RC Transfer + Fees(96)", "price": "150/-"}, {"name": "Parivahan(97)", "price": "nil"}, {"name": "Parivahan Tax Payment(98)", "price": "Min. 100/-"}, {"name": "Parivahan EChallan/Camera Fine(99)", "price": "Min. 50/- (Upto 1000/-); 50+10 per 1000/- [Above 1000/-]"}, {"name": "Udhyam Registration(100)", "price": "300/-"}, {"name": "Tailoring Welfare Kshemanidhi Payment (101)", "price": "30 - 50/-"}, {"name": "Pravasi Welfare Kshemanidhi Payment (101)", "price": "30 - 50/-"}, {"name": "Motor Welfare Kshemanidhi Payment (102)", "price": "30 - 50/-"}, {"name": "Fast Tag New (103)", "price": "200 - 250/-"}, {"name": "Fast Tag KYC Update (104)", "price": "100 - 150/-"}, {"name": "Chief Ministers Relief Fund Application (105)", "price": "50/-"}, {"name": "Minority Welfare Scholorships (106)", "price": "100/-"}, {"name": "Labour Registration New(106)", "price": "100/-"}, {"name": "Labour Registration Renewal/Amendment (106)", "price": "50/-"}, {"name": "NORKA Registration/Renewal (107)", "price": "100 - 150/-"}, {"name": "NORKA NDPREM Application (108)", "price": "150 - 200/-"}, {"name": "NORKA Attestation (109)", "price": "100/-"}, {"name": "Pravasi Welfare Application(110)", "price": "100/-"}, {"name": "Tharam Mattam FORM5/FORM6 (111)", "price": "150 - 200/-"}, {"name": "New Ration Card (112)", "price": "200/-"}, {"name": "Ration Card Services (112)", "price": "70/-"}, {"name": "Ration Card Member Addition (113)", "price": "50/-"}, {"name": "Location Map (114)", "price": "100/-"}, {"name": "KSEB Bill (115)", "price": "15/- [Upto 500/-]; 20/- [500-1000]; 30/- [1000-3000]; 1% [Above 3000]"}, {"name": "KSEB Online Services (116)", "price": "100/-"}, {"name": "Panchayath/Municipal Licence New/Renewal (117)", "price": "100/-"}, {"name": "Photostat ID Card (118)", "price": "5/-"}, {"name": "Print from social Media (119)", "price": "5/-"}, {"name": "Photo Paper Printing color A4 (120)", "price": "100/-"}, {"name": "Jeevan Praman (Life Certificate) (121)", "price": "50/-"}, {"name": "Job Applicantion(122)", "price": "100/-"}, {"name": "UDID Card Registration(123)", "price": "100/-"}, {"name": "CIBIL Report(124)", "price": "100/-"}, {"name": "Food Safety Licence Registration (FSSAI)(125)", "price": "100/-"}];
+let items = JSON.parse(localStorage.getItem('cafeCharges') || 'null') || original.map(x=>({...x}));
+let editing = -1, adminMode = false;
+const rows = document.getElementById('serviceRows');
+function persist(){localStorage.setItem('cafeCharges',JSON.stringify(items));render();}
+function render(){
+ const q=document.getElementById('search').value.toLowerCase();
+ rows.innerHTML='';
+ const visible=items.map((x,i)=>({...x,i})).filter(x=>(x.name+' '+x.price).toLowerCase().includes(q));
+ document.getElementById('actionHead').hidden=!adminMode;
+ visible.forEach(x=>{
+  const tr=document.createElement('tr');
+  const name=document.createElement('td');name.textContent=x.name;
+  const price=document.createElement('td');price.className='price';price.textContent=x.price;
+  tr.append(name,price);
+  if(adminMode){
+   const actions=document.createElement('td');actions.className='actions';
+   const edit=document.createElement('button');edit.type='button';edit.textContent='Edit';edit.onclick=()=>loadEdit(x.i);
+   const del=document.createElement('button');del.type='button';del.textContent='Delete';del.className='secondary';del.onclick=()=>{if(confirm('Delete this service?')){items.splice(x.i,1);persist();}};
+   actions.append(edit,del);tr.append(actions);
+  }
+  rows.append(tr);
+ });
+ if(!visible.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=adminMode?3:2;td.textContent='No matching services found.';tr.append(td);rows.append(tr);}
+}
+function loadEdit(i){editing=i;document.getElementById('serviceName').value=items[i].name;document.getElementById('servicePrice').value=items[i].price;document.getElementById('saveService').textContent='Save changes';document.getElementById('admin').scrollIntoView({behavior:'smooth'});}
+document.getElementById('adminToggle').onclick=()=>{adminMode=!adminMode;document.getElementById('admin').style.display=adminMode?'block':'none';document.getElementById('adminToggle').textContent=adminMode?'Close editor':'Admin / Edit prices';render();};
+document.getElementById('saveService').onclick=()=>{
+ const name=document.getElementById('serviceName').value.trim(),price=document.getElementById('servicePrice').value.trim();
+ if(!name||!price){alert('Enter both service name and charge.');return;}
+ if(editing>=0){items[editing]={name,price};editing=-1;}else{items.push({name,price});}
+ document.getElementById('serviceName').value='';document.getElementById('servicePrice').value='';document.getElementById('saveService').textContent='Add service';persist();
+};
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('reset').onclick=()=>{if(confirm('Restore the original reference list? Your browser-saved edits will be replaced.')){items=original.map(x=>({...x}));persist();}};
+render();
+</script>
+</body></html>
